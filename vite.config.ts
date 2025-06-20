@@ -14,6 +14,8 @@ export default defineConfig({
       '@pages': resolve(__dirname, 'src/pages'),
       '@customType': resolve(__dirname, 'src/types'),
       '@utils': resolve(__dirname, 'src/utils'),
+      '@constants': resolve(__dirname, 'src/constants'),
+      '@store': resolve(__dirname, 'src/store'),
     },
   },
   plugins: [react(), tailwindcss()],
