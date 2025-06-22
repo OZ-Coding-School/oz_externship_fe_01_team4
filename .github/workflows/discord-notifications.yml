@@ -63,22 +63,9 @@ jobs:
               ${{ secrets.DISCORD_WEBHOOK_URL }}
 
       # 리뷰어 멘션
-      - name: 리뷰어 멘션 (요약)
+      - name: 리뷰어 멘션 (파일 변경사항)
         if: github.event.action == 'review_requested'
         run: |
-          # PR 설명 요약 (첫 번째 줄만 또는 키워드만)
-          PR_SUMMARY="${{ github.event.pull_request.body }}"
-
-          if [ -n "$PR_SUMMARY" ]; then
-            # 첫 번째 줄만 추출하고 길이 제한
-            PR_SUMMARY=$(echo "$PR_SUMMARY" | head -n1 | cut -c1-100 | sed 's/[*"`]//g')
-            if [ -z "$PR_SUMMARY" ]; then
-              PR_SUMMARY="설명 있음 (링크 확인)"
-            fi
-          else
-            PR_SUMMARY="설명이 없습니다."
-          fi
-
           curl -H "Content-Type: application/json" \
               -X POST \
               -d "{
@@ -99,8 +86,8 @@ jobs:
                       \"inline\": true
                     },
                     {
-                      \"name\": \"📋 요약\",
-                      \"value\": \"$PR_SUMMARY\",
+                      \"name\": \"📁 변경사항\",
+                      \"value\": \"파일 ${{ github.event.pull_request.changed_files }}개 | +${{ github.event.pull_request.additions }} -${{ github.event.pull_request.deletions }}\",
                       \"inline\": false
                     }
                   ]
