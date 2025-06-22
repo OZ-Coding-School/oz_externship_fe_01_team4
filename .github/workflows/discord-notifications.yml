@@ -10,27 +10,8 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      # GitHub 유저명을 Discord 유저 ID로 매핑
-      - name: Map GitHub to Discord users
-        id: user-mapping
-        run: |
-          case "${{ github.event.requested_reviewer.login || github.actor }}" in
-            "chen4023")
-              echo "discord_mention=<@683563560063991848>" >> $GITHUB_OUTPUT
-              ;;
-            "devjaesung")
-              echo "discord_mention=<@1344112571330072626>" >> $GITHUB_OUTPUT
-              ;;
-            "quartzs2")
-              echo "discord_mention=<@280589926477856778>" >> $GITHUB_OUTPUT
-              ;;
-            *)
-              echo "discord_mention=${{ github.event.requested_reviewer.login || github.actor }}" >> $GITHUB_OUTPUT
-              ;;
-          esac
-
-      # PR 생성 알림
-      - name: PR 생성 알림
+      # PR 생성 알림 (수정 없음)
+      - name: Notify on PR Opened
         if: github.event.action == 'opened'
         run: |
           curl -H "Content-Type: application/json" \
@@ -62,41 +43,66 @@ jobs:
               }' \
               ${{ secrets.DISCORD_WEBHOOK_URL }}
 
-      # 리뷰어 멘션
-      - name: 리뷰어 멘션 (파일 변경사항)
+      # [개선] 여러 명의 리뷰어를 모두 멘션하도록 수정
+      - name: Mention Reviewers
         if: github.event.action == 'review_requested'
         run: |
-          curl -H "Content-Type: application/json" \
-              -X POST \
-              -d "{
-                \"content\": \"🔍 **리뷰 요청이 도착했습니다!** ${{ steps.user-mapping.outputs.discord_mention }}\",
-                \"embeds\": [{
-                  \"title\": \"리뷰를 부탁드립니다! 👀\",
-                  \"description\": \"[${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})\",
-                  \"color\": 16776960,
-                  \"fields\": [
-                    {
-                      \"name\": \"👤 PR 작성자\",
-                      \"value\": \"${{ github.event.pull_request.user.login }}\",
-                      \"inline\": true
-                    },
-                    {
-                      \"name\": \"👀 리뷰어\",
-                      \"value\": \"${{ github.event.requested_reviewer.login }}\",
-                      \"inline\": true
-                    },
-                    {
-                      \"name\": \"📁 변경사항\",
-                      \"value\": \"파일 ${{ github.event.pull_request.changed_files }}개 | +${{ github.event.pull_request.additions }} -${{ github.event.pull_request.deletions }}\",
-                      \"inline\": false
-                    }
-                  ]
-                }]
-              }" \
-              ${{ secrets.DISCORD_WEBHOOK_URL }}
+          # 요청된 리뷰어 목록을 JSON으로 가져옴 (jq 설치 불필요, 기본 제공)
+          REVIEWERS_JSON='${{ toJSON(github.event.pull_request.requested_reviewers) }}'
 
-      # PR 병합/닫힘 알림
-      - name: PR 완료 알림
+          # 각 리뷰어의 login 값을 추출하여 멘션 문자열 생성
+          MENTIONS=""
+          for login in $(echo "$REVIEWERS_JSON" | jq -r '.[] | .login'); do
+            case "$login" in
+              "chen4023")
+                MENTIONS="$MENTIONS <@683563560063991848>"
+                ;;
+              "devjaesung")
+                MENTIONS="$MENTIONS <@1344112571330072626>"
+                ;;
+              "quartzs2")
+                MENTIONS="$MENTIONS <@280589926477856778>"
+                ;;
+              *)
+                MENTIONS="$MENTIONS @$login" # 매핑되지 않은 사용자는 GitHub ID로 표시
+                ;;
+            esac
+          done
+
+          # 만약 요청된 리뷰어가 없으면(예: 팀 리뷰), 대신 요청한 사람을 멘션
+          if [ -z "$MENTIONS" ]; then
+            MENTIONS="**${{ github.event.sender.login }}**님이 팀 리뷰를 요청했습니다."
+          fi
+
+          # JSON 페이로드 생성
+          JSON_PAYLOAD=$(cat <<EOF
+          {
+            "content": "🔍 **리뷰 요청이 도착했습니다!** $MENTIONS",
+            "embeds": [{
+              "title": "리뷰를 부탁드립니다! 👀",
+              "description": "[${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})",
+              "color": 16776960,
+              "fields": [
+                {
+                  "name": "👤 PR 작성자",
+                  "value": "${{ github.event.pull_request.user.login }}",
+                  "inline": true
+                },
+                {
+                  "name": "📁 변경사항",
+                  "value": "파일 ${{ github.event.pull_request.changed_files }}개 | +${{ github.event.pull_request.additions }} -${{ github.event.pull_request.deletions }}",
+                  "inline": false
+                }
+              ]
+            }]
+          }
+          EOF
+          )
+
+          curl -H "Content-Type: application/json" -X POST -d "$JSON_PAYLOAD" ${{ secrets.DISCORD_WEBHOOK_URL }}
+
+      # PR 병합/닫힘 알림 (수정 없음)
+      - name: Notify on PR Closed
         if: github.event.action == 'closed'
         run: |
           if [ "${{ github.event.pull_request.merged }}" == "true" ]; then
@@ -132,38 +138,55 @@ jobs:
               }" \
               ${{ secrets.DISCORD_WEBHOOK_URL }}
 
-      # 리뷰 완료 알림
-      - name: 리뷰 완료 알림
+      # [개선] 리뷰 승인 시 PR 작성자 멘션 추가
+      - name: Notify on Review Approved
         if: github.event.review.state == 'approved'
         run: |
+          # PR 작성자 Discord ID 매핑
+          case "${{ github.event.pull_request.user.login }}" in
+            "chen4023")
+              AUTHOR_MENTION="<@683563560063991848>"
+              ;;
+            "devjaesung")
+              AUTHOR_MENTION="<@1344112571330072626>"
+              ;;
+            "quartzs2")
+              AUTHOR_MENTION="<@280589926477856778>"
+              ;;
+            *)
+              AUTHOR_MENTION="${{ github.event.pull_request.user.login }}"
+              ;;
+          esac
+
           curl -H "Content-Type: application/json" \
               -X POST \
-              -d '{
-                "embeds": [{
-                  "title": "✅ 리뷰 승인 완료!",
-                  "description": "[${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})",
-                  "color": 65280,
-                  "fields": [
+              -d "{
+                \"content\": \"👍 **리뷰가 승인되었습니다!** $AUTHOR_MENTION\",
+                \"embeds\": [{
+                  \"title\": \"✅ 리뷰 승인 완료!\",
+                  \"description\": \"[${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})\",
+                  \"color\": 65280,
+                  \"fields\": [
                     {
-                      "name": "👀 리뷰어",
-                      "value": "${{ github.event.review.user.login }}",
-                      "inline": true
+                      \"name\": \"👀 리뷰어\",
+                      \"value\": \"${{ github.event.review.user.login }}\",
+                      \"inline\": true
                     },
                     {
-                      "name": "💬 리뷰 내용",
-                      "value": "${{ github.event.review.body || '코멘트 없음' }}",
-                      "inline": false
+                      \"name\": \"💬 리뷰 내용\",
+                      \"value\": \"${{ github.event.review.body || '코멘트 없음' }}\",
+                      \"inline\": false
                     }
                   ],
-                  "footer": {
-                    "text": "이제 병합할 수 있습니다! 🚀"
+                  \"footer\": {
+                    \"text\": \"이제 병합할 수 있습니다! 🚀\"
                   }
                 }]
-              }' \
+              }" \
               ${{ secrets.DISCORD_WEBHOOK_URL }}
 
-      # 변경 사항 요청 알림
-      - name: 변경 요청 알림
+      # 변경 사항 요청 알림 (기존 코드 유지, 구조 좋음)
+      - name: Notify on Changes Requested
         if: github.event.review.state == 'changes_requested'
         run: |
           # PR 작성자 Discord ID 매핑
