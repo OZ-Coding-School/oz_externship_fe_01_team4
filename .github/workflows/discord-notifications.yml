@@ -34,66 +34,79 @@ jobs:
         if: github.event.action == 'opened'
         run: |
           curl -H "Content-Type: application/json" \
-               -X POST \
-               -d '{
-                 "embeds": [{
-                   "title": "🆕 새로운 PR이 생성되었습니다!",
-                   "description": "[${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})",
-                   "color": 3447003,
-                   "fields": [
-                     {
-                       "name": "👤 작성자",
-                       "value": "${{ github.event.pull_request.user.login }}",
-                       "inline": true
-                     },
-                     {
-                       "name": "🌿 브랜치",
-                       "value": "`${{ github.event.pull_request.head.ref }}` → `${{ github.event.pull_request.base.ref }}`",
-                       "inline": true
-                     },
-                     {
-                       "name": "📊 변경사항",
-                       "value": "+${{ github.event.pull_request.additions }} -${{ github.event.pull_request.deletions }}",
-                       "inline": true
-                     }
-                   ],
-                   "timestamp": "${{ github.event.pull_request.created_at }}"
-                 }]
-               }' \
-               ${{ secrets.DISCORD_WEBHOOK_URL }}
+              -X POST \
+              -d '{
+                "embeds": [{
+                  "title": "🆕 새로운 PR이 생성되었습니다!",
+                  "description": "[${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})",
+                  "color": 3447003,
+                  "fields": [
+                    {
+                      "name": "👤 작성자",
+                      "value": "${{ github.event.pull_request.user.login }}",
+                      "inline": true
+                    },
+                    {
+                      "name": "🌿 브랜치",
+                      "value": "`${{ github.event.pull_request.head.ref }}` → `${{ github.event.pull_request.base.ref }}`",
+                      "inline": true
+                    },
+                    {
+                      "name": "📊 변경사항",
+                      "value": "+${{ github.event.pull_request.additions }} -${{ github.event.pull_request.deletions }}",
+                      "inline": true
+                    }
+                  ],
+                  "timestamp": "${{ github.event.pull_request.created_at }}"
+                }]
+              }' \
+              ${{ secrets.DISCORD_WEBHOOK_URL }}
 
       # 리뷰어 멘션
-      - name: 리뷰어 멘션
+      - name: 리뷰어 멘션 (요약)
         if: github.event.action == 'review_requested'
         run: |
+          # PR 설명 요약 (첫 번째 줄만 또는 키워드만)
+          PR_SUMMARY="${{ github.event.pull_request.body }}"
+
+          if [ -n "$PR_SUMMARY" ]; then
+            # 첫 번째 줄만 추출하고 길이 제한
+            PR_SUMMARY=$(echo "$PR_SUMMARY" | head -n1 | cut -c1-100 | sed 's/[*"`]//g')
+            if [ -z "$PR_SUMMARY" ]; then
+              PR_SUMMARY="설명 있음 (링크 확인)"
+            fi
+          else
+            PR_SUMMARY="설명이 없습니다."
+          fi
+
           curl -H "Content-Type: application/json" \
-               -X POST \
-               -d '{
-                 "content": "🔍 **리뷰 요청이 도착했습니다!** ${{ steps.user-mapping.outputs.discord_mention }}",
-                 "embeds": [{
-                   "title": "리뷰를 부탁드립니다! 👀",
-                   "description": "[${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})",
-                   "color": 16776960,
-                   "fields": [
-                     {
-                       "name": "👤 PR 작성자",
-                       "value": "${{ github.event.pull_request.user.login }}",
-                       "inline": true
-                     },
-                     {
-                       "name": "👀 리뷰어",
-                       "value": "${{ github.event.requested_reviewer.login }}",
-                       "inline": true
-                     },
-                     {
-                       "name": "📋 설명",
-                       "value": "${{ github.event.pull_request.body || '설명이 없습니다.' }}",
-                       "inline": false
-                     }
-                   ]
-                 }]
-               }' \
-               ${{ secrets.DISCORD_WEBHOOK_URL }}
+              -X POST \
+              -d "{
+                \"content\": \"🔍 **리뷰 요청이 도착했습니다!** ${{ steps.user-mapping.outputs.discord_mention }}\",
+                \"embeds\": [{
+                  \"title\": \"리뷰를 부탁드립니다! 👀\",
+                  \"description\": \"[${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})\",
+                  \"color\": 16776960,
+                  \"fields\": [
+                    {
+                      \"name\": \"👤 PR 작성자\",
+                      \"value\": \"${{ github.event.pull_request.user.login }}\",
+                      \"inline\": true
+                    },
+                    {
+                      \"name\": \"👀 리뷰어\",
+                      \"value\": \"${{ github.event.requested_reviewer.login }}\",
+                      \"inline\": true
+                    },
+                    {
+                      \"name\": \"📋 요약\",
+                      \"value\": \"$PR_SUMMARY\",
+                      \"inline\": false
+                    }
+                  ]
+                }]
+              }" \
+              ${{ secrets.DISCORD_WEBHOOK_URL }}
 
       # PR 병합/닫힘 알림
       - name: PR 완료 알림
@@ -110,57 +123,57 @@ jobs:
           fi
 
           curl -H "Content-Type: application/json" \
-               -X POST \
-               -d "{
-                 \"embeds\": [{
-                   \"title\": \"$EMOJI $STATUS\",
-                   \"description\": \"[${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})\",
-                   \"color\": $COLOR,
-                   \"fields\": [
-                     {
-                       \"name\": \"👤 작성자\",
-                       \"value\": \"${{ github.event.pull_request.user.login }}\",
-                       \"inline\": true
-                     },
-                     {
-                       \"name\": \"🌿 브랜치\",
-                       \"value\": \"\`${{ github.event.pull_request.head.ref }}\` → \`${{ github.event.pull_request.base.ref }}\`\",
-                       \"inline\": true
-                     }
-                   ]
-                 }]
-               }" \
-               ${{ secrets.DISCORD_WEBHOOK_URL }}
+              -X POST \
+              -d "{
+                \"embeds\": [{
+                  \"title\": \"$EMOJI $STATUS\",
+                  \"description\": \"[${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})\",
+                  \"color\": $COLOR,
+                  \"fields\": [
+                    {
+                      \"name\": \"👤 작성자\",
+                      \"value\": \"${{ github.event.pull_request.user.login }}\",
+                      \"inline\": true
+                    },
+                    {
+                      \"name\": \"🌿 브랜치\",
+                      \"value\": \"\`${{ github.event.pull_request.head.ref }}\` → \`${{ github.event.pull_request.base.ref }}\`\",
+                      \"inline\": true
+                    }
+                  ]
+                }]
+              }" \
+              ${{ secrets.DISCORD_WEBHOOK_URL }}
 
       # 리뷰 완료 알림
       - name: 리뷰 완료 알림
         if: github.event.review.state == 'approved'
         run: |
           curl -H "Content-Type: application/json" \
-               -X POST \
-               -d '{
-                 "embeds": [{
-                   "title": "✅ 리뷰 승인 완료!",
-                   "description": "[${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})",
-                   "color": 65280,
-                   "fields": [
-                     {
-                       "name": "👀 리뷰어",
-                       "value": "${{ github.event.review.user.login }}",
-                       "inline": true
-                     },
-                     {
-                       "name": "💬 리뷰 내용",
-                       "value": "${{ github.event.review.body || '코멘트 없음' }}",
-                       "inline": false
-                     }
-                   ],
-                   "footer": {
-                     "text": "이제 병합할 수 있습니다! 🚀"
-                   }
-                 }]
-               }' \
-               ${{ secrets.DISCORD_WEBHOOK_URL }}
+              -X POST \
+              -d '{
+                "embeds": [{
+                  "title": "✅ 리뷰 승인 완료!",
+                  "description": "[${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})",
+                  "color": 65280,
+                  "fields": [
+                    {
+                      "name": "👀 리뷰어",
+                      "value": "${{ github.event.review.user.login }}",
+                      "inline": true
+                    },
+                    {
+                      "name": "💬 리뷰 내용",
+                      "value": "${{ github.event.review.body || '코멘트 없음' }}",
+                      "inline": false
+                    }
+                  ],
+                  "footer": {
+                    "text": "이제 병합할 수 있습니다! 🚀"
+                  }
+                }]
+              }' \
+              ${{ secrets.DISCORD_WEBHOOK_URL }}
 
       # 변경 사항 요청 알림
       - name: 변경 요청 알림
@@ -183,25 +196,25 @@ jobs:
           esac
 
           curl -H "Content-Type: application/json" \
-               -X POST \
-               -d "{
-                 \"content\": \"🔄 **변경사항이 요청되었습니다!** $AUTHOR_MENTION\",
-                 \"embeds\": [{
-                   \"title\": \"❗ 수정이 필요합니다\",
-                   \"description\": \"[${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})\",
-                   \"color\": 16776960,
-                   \"fields\": [
-                     {
-                       \"name\": \"👀 리뷰어\",
-                       \"value\": \"${{ github.event.review.user.login }}\",
-                       \"inline\": true
-                     },
-                     {
-                       \"name\": \"📝 요청사항\",
-                       \"value\": \"${{ github.event.review.body || '자세한 내용은 PR을 확인해주세요.' }}\",
-                       \"inline\": false
-                     }
-                   ]
-                 }]
-               }" \
-               ${{ secrets.DISCORD_WEBHOOK_URL }}
+              -X POST \
+              -d "{
+                \"content\": \"🔄 **변경사항이 요청되었습니다!** $AUTHOR_MENTION\",
+                \"embeds\": [{
+                  \"title\": \"❗ 수정이 필요합니다\",
+                  \"description\": \"[${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})\",
+                  \"color\": 16776960,
+                  \"fields\": [
+                    {
+                      \"name\": \"👀 리뷰어\",
+                      \"value\": \"${{ github.event.review.user.login }}\",
+                      \"inline\": true
+                    },
+                    {
+                      \"name\": \"📝 요청사항\",
+                      \"value\": \"${{ github.event.review.body || '자세한 내용은 PR을 확인해주세요.' }}\",
+                      \"inline\": false
+                    }
+                  ]
+                }]
+              }" \
+              ${{ secrets.DISCORD_WEBHOOK_URL }}
