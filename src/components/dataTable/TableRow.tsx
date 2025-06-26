@@ -1,3 +1,4 @@
+import Button from '@components/Button'
 import type { TableHeader, TableRowData } from '@customType/table'
 import { cn } from '@utils/cn'
 import { useState } from 'react'
@@ -98,16 +99,7 @@ export default function TableRow({
 
             switch (header.dataKey) {
               case DATA_KEYS.DEPLOY:
-                return (
-                  <button
-                    className={cn(
-                      'text-bold rounded-[5px] bg-[#5EB669] px-4 py-1 font-bold text-[#F7F7F7]'
-                    )}
-                    onClick={handleDeploy}
-                  >
-                    배포
-                  </button>
-                )
+                return <Button onClick={handleDeploy}>배포</Button>
               case DATA_KEYS.DEPLOY_SWITCH:
                 return (
                   <label className="relative inline-flex cursor-pointer items-center">
