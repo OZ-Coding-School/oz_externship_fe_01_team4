@@ -1,167 +1,17 @@
-import Modal from '@components/Modal'
+import Modal from '@components/common/Modal'
 import Input from '@components/common/Input'
 import FormRow from '@components/common/FormRow'
-import Button from '@components/Button'
-import DataTable from '@components/dataTable/DataTable'
-import Pagination from '@components/dataTable/Pagination'
-import { useSort } from '@hooks/dataTable/useSort'
-import { useState } from 'react'
-import { usePagination } from '@hooks/dataTable/usePagination'
+import Button from '@components/common/Button'
+import DataTable from '@components/common/data-table/DataTable'
+import Pagination from '@components/common/data-table/Pagination'
+import { useSort } from '@hooks/data-table/useSort'
+import { useEffect, useState } from 'react'
+import { usePagination } from '@hooks/data-table/usePagination'
 import Dropdown from '@components/common/Dropdown'
 import { useCustomToast } from '@hooks/toast/useToast'
 import { cn } from '@utils/cn'
+import axios from 'axios'
 
-const item = {
-  count: 2,
-  next: null,
-  previous: null,
-  results: [
-    {
-      id: 1,
-      title: '파이썬 기초 쪽지시험',
-      subject_name: 'Python',
-      question_count: 10,
-      submission_count: 45,
-      created_at: '2025-06-01T12:00:00',
-      updated_at: '2025-06-10T15:30:00',
-    },
-    {
-      id: 2,
-      title: 'Django 기초 쪽지시험',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-    {
-      id: 3,
-      title: 'qwewqe',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-    {
-      id: 4,
-      title: 'qq',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-    {
-      id: 5,
-      title: 'Django 기초 쪽지시험',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-    {
-      id: 6,
-      title: 'Django 기초 쪽지시험',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-    {
-      id: 7,
-      title: 'Django 기초 쪽지시험',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-    {
-      id: 8,
-      title: 'Django 기초 쪽지시험',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-    {
-      id: 9,
-      title: 'Django 기초 쪽지시험',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-    {
-      id: 10,
-      title: 'Django 기초 쪽지시험',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-    {
-      id: 11,
-      title: 'Django 기초 쪽지시험',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-    {
-      id: 12,
-      title: 'Django 기초 쪽지시험',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-    {
-      id: 13,
-      title: 'Django 기초 쪽지시험',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-    {
-      id: 14,
-      title: 'Django 기초 쪽지시험',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-    {
-      id: 15,
-      title: 'Django 기초 쪽지시험',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-    {
-      id: 16,
-      title: 'Django 기초 쪽지시험',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-  ],
-}
 // 표제목 상수화
 const TableHeaderItem = [
   { text: 'ID', dataKey: 'id' },
@@ -178,7 +28,24 @@ const SortItem = ['title'] // 정렬할 데이터 지정
 
 // 쪽지시험 관리
 const Quizzes = () => {
-  const { sortedData, sortByKey, sortKey, sortOrder } = useSort(item.results)
+  const [quizData, setQuizData] = useState<[]>([])
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(
+        'http://54.180.237.77/api/v1/admin/tests/'
+      )
+      setQuizData(response.data.results)
+    } catch (error) {
+      console.error('에러 발생:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const { sortedData, sortByKey, sortKey, sortOrder } = useSort(quizData)
 
   const { currentPage, totalPages, paginatedData, goPrev, goNext } =
     usePagination({
@@ -190,6 +57,7 @@ const Quizzes = () => {
 
   const [isTitle, setIsTitle] = useState(true)
   const [isSelectedSubject, setIsSelectedSubject] = useState(true)
+  const [isImageFile, setIsImageFile] = useState(true)
 
   const handleSubmit = () => {
     let isValid = true
@@ -204,6 +72,11 @@ const Quizzes = () => {
 
     if (!selectedSubject) {
       setIsSelectedSubject(false)
+      isValid = false
+    }
+
+    if (!file) {
+      setIsImageFile(false)
       isValid = false
     }
 
@@ -235,6 +108,7 @@ const Quizzes = () => {
     setSelectedSubject('')
     setIsTitle(true)
     setIsSelectedSubject(true)
+    setIsImageFile(true)
     setPreview(null)
     setFile(null)
   }
@@ -339,7 +213,7 @@ const Quizzes = () => {
                 }}
               />
               {!isTitle && (
-                <p className="text-sm whitespace-nowrap text-red-500">
+                <p className="text-sm whitespace-nowrap text-[#CC0A0A]">
                   제목 입력 필수
                 </p>
               )}
@@ -360,7 +234,7 @@ const Quizzes = () => {
                 options={options}
               />
               {!isSelectedSubject && (
-                <p className="text-sm whitespace-nowrap text-red-500">
+                <p className="text-sm whitespace-nowrap text-[#CC0A0A]">
                   과목 선택 필수
                 </p>
               )}
@@ -397,13 +271,21 @@ const Quizzes = () => {
               <p className="max-w-[150px] truncate text-sm underline">
                 {file && file.name}
               </p>
+              {!isImageFile && (
+                <p className="text-sm text-[#CC0A0A]">
+                  로고 업로드를 해주세요.
+                </p>
+              )}
               <label className="cursor-pointer rounded border border-[#DDDDDD] bg-white px-3 py-1 text-sm">
                 파일 첨부
                 <input
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={handleFileChange}
+                  onChange={(e) => {
+                    handleFileChange(e)
+                    setIsImageFile(true)
+                  }}
                 />
               </label>
             </div>
