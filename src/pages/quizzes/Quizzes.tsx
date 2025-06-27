@@ -8,6 +8,8 @@ import { useSort } from '@hooks/dataTable/useSort'
 import { useState } from 'react'
 import { usePagination } from '@hooks/dataTable/usePagination'
 import Dropdown from '@components/common/Dropdown'
+import { useCustomToast } from '@hooks/toast/useToast'
+import { cn } from '@utils/cn'
 
 const item = {
   count: 2,
@@ -160,6 +162,19 @@ const item = {
     },
   ],
 }
+// 표제목 상수화
+const TableHeaderItem = [
+  { text: 'ID', dataKey: 'id' },
+  { text: '제목', dataKey: 'title' },
+  { text: '과목명', dataKey: 'subject_name' },
+  { text: '총 문제 수', dataKey: 'question_count' },
+  { text: '응시 수', dataKey: 'submission_count' },
+  { text: '등록 일시', dataKey: 'created_at' },
+  { text: '수정 일시', dataKey: 'updated_at' },
+  // { text: '', dataKey: 'deploy' },
+]
+
+const SortItem = ['title'] // 정렬할 데이터 지정
 
 // 쪽지시험 관리
 const Quizzes = () => {
@@ -171,10 +186,57 @@ const Quizzes = () => {
       count: 10,
     })
 
+  const toast = useCustomToast()
+
+  const [isTitle, setIsTitle] = useState(true)
+  const [isSelectedSubject, setIsSelectedSubject] = useState(true)
+
+  const handleSubmit = () => {
+    let isValid = true
+
+    setIsTitle(true)
+    setIsSelectedSubject(true)
+
+    if (!title.trim()) {
+      setIsTitle(false)
+      isValid = false
+    }
+
+    if (!selectedSubject) {
+      setIsSelectedSubject(false)
+      isValid = false
+    }
+
+    if (!isValid) return
+
+    setIsOpen(false)
+    resetForm()
+    setIsTitle(true)
+    setIsSelectedSubject(true)
+
+    toast.success('성공적으로 쪽지시험이 생성되었습니다.', {
+      style: 'style4',
+      duration: 5000,
+      hasActionButton: false,
+      actionLabel: '확인',
+      hasCloseButton: true,
+      hasIcon: true,
+    })
+  }
+
   const [isOpen, setIsOpen] = useState(false)
 
   const openModal = () => {
     setIsOpen(true)
+  }
+
+  const resetForm = () => {
+    setTitle('')
+    setSelectedSubject('')
+    setIsTitle(true)
+    setIsSelectedSubject(true)
+    setPreview(null)
+    setFile(null)
   }
 
   const [selectedSubject, setSelectedSubject] = useState<string>('')
@@ -191,6 +253,15 @@ const Quizzes = () => {
       setPreview(imageUrl)
     }
   }
+
+  //드롭다운 옵션 상수화
+  const options = [
+    { label: '과목을 선택하세요', value: '' },
+    ...paginatedData.map((subject) => ({
+      label: String(subject.title ?? ''),
+      value: String(subject.id),
+    })),
+  ]
   return (
     <div className="mx-6 my-7">
       <p className="mb-2 text-[18px] font-[600]">쪽지시험 조회</p>
@@ -213,26 +284,20 @@ const Quizzes = () => {
           wrapClassName="mb-2"
         />
         <Button variant="VARIANT1">조회</Button>
-        <Button>🔍️ 과정별 필터링</Button>
+        <div className="ml-auto flex">
+          <Button>🔍️ 과정별 필터링</Button>
+        </div>
       </div>
+
       <DataTable
-        headerData={[
-          { text: 'ID', dataKey: 'id' },
-          { text: '제목', dataKey: 'title' },
-          { text: '과목명', dataKey: 'subject_name' },
-          { text: '총 문제 수', dataKey: 'question_count' },
-          { text: '응시 수', dataKey: 'submission_count' },
-          { text: '등록 일시', dataKey: 'created_at' },
-          { text: '수정 일시', dataKey: 'updated_at' },
-          { text: '', dataKey: 'deploy' },
-        ]}
-        tableItem={paginatedData} // 4. 페이지네이션된 데이터 전달
-        isCheckBox
-        sortKeys={['title']}
-        sortKey={sortKey} // 5. 현재 정렬 키 전달
-        sortOrder={sortOrder} // 6. 현재 정렬 방향 전달
-        sortByKey={sortByKey} // 7. 정렬 함수 전달
-        isTime
+        headerData={TableHeaderItem} // 표제목,열 개수
+        tableItem={paginatedData} // 페이지네이션된 데이터 전달
+        isCheckBox={false} // 체크박스 여부
+        sortKeys={SortItem} // 정렬할 데이터 지정
+        sortKey={sortKey} // 현재 정렬 키 전달
+        sortOrder={sortOrder} // 현재 정렬 방향 전달
+        sortByKey={sortByKey} // 정렬 함수 전달
+        isTime // 시간 표시 여부
       />
       <Pagination
         currentPage={currentPage}
@@ -246,43 +311,61 @@ const Quizzes = () => {
       <Modal
         modalId="example-modal"
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={() => {
+          setIsOpen(false)
+          resetForm()
+          setIsTitle(true)
+          setIsSelectedSubject(true)
+        }}
         paddingSize={32}
         isBackgroundDimmed
         closeButtonOffset={16}
       >
-        <h1 className="mb-15 text-xl font-bold">쪽지시험 등록</h1>
+        <h1 className="mb-[53px] text-xl font-bold">쪽지시험 등록</h1>
 
         <div className="flex flex-col">
           {/* 제목 */}
           <FormRow htmlFor="title" labelText="제목" labelClassName="h-[50px]">
-            <Input
-              id="title"
-              name="title"
-              type="text"
-              value={title}
-              placeholder="제목을 입력하세요."
-              onChange={(e) => setTitle(e.target.value)}
-            />
+            <div className="flex w-full items-center gap-2">
+              <Input
+                id="title"
+                name="title"
+                type="text"
+                value={title}
+                placeholder="제목을 입력하세요."
+                onChange={(e) => {
+                  setTitle(e.target.value)
+                  setIsTitle(true)
+                }}
+              />
+              {!isTitle && (
+                <p className="text-sm whitespace-nowrap text-red-500">
+                  제목 입력 필수
+                </p>
+              )}
+            </div>
           </FormRow>
 
           {/* 과목 */}
           <FormRow htmlFor="subject" labelText="과목" labelClassName="h-[50px]">
-            <Dropdown
-              id="subject"
-              name="subject"
-              value={selectedSubject}
-              onChange={(val) => setSelectedSubject(val)}
-              options={[
-                { label: '과목을 선택하세요', value: '' },
-                ...paginatedData.map((subject) => ({
-                  label: String(subject.title ?? ''),
-                  value: String(subject.id),
-                })),
-              ]}
-            />
+            <div className="flex w-full items-center gap-2">
+              <Dropdown
+                id="subject"
+                name="subject"
+                value={selectedSubject}
+                onChange={(val) => {
+                  setSelectedSubject(val)
+                  setIsSelectedSubject(true)
+                }}
+                options={options}
+              />
+              {!isSelectedSubject && (
+                <p className="text-sm whitespace-nowrap text-red-500">
+                  과목 선택 필수
+                </p>
+              )}
+            </div>
           </FormRow>
-
           {/* 로고 업로드 */}
           <FormRow
             htmlFor="logo"
@@ -290,7 +373,12 @@ const Quizzes = () => {
             labelClassName="h-[191px] border-b border-[#DDDDDD]"
             valueClassName="h-[191px] border-b border-[#DDDDDD]"
           >
-            <div className="mt-4 flex h-[132px] w-[146px] items-center justify-center overflow-hidden border border-gray-200 bg-[#F7F7F7]">
+            <div
+              className={cn(
+                `mt-4 h-[132px] w-[146px] overflow-hidden border border-[#DDD] bg-[#F7F7F7]`,
+                `flex items-center justify-center`
+              )}
+            >
               {preview ? (
                 <img
                   src={preview}
@@ -309,7 +397,7 @@ const Quizzes = () => {
               <p className="max-w-[150px] truncate text-sm underline">
                 {file && file.name}
               </p>
-              <label className="cursor-pointer rounded border border-[#DDDDDD] bg-white px-3 py-1 text-sm text-gray-800 hover:bg-gray-50">
+              <label className="cursor-pointer rounded border border-[#DDDDDD] bg-white px-3 py-1 text-sm">
                 파일 첨부
                 <input
                   type="file"
@@ -322,8 +410,14 @@ const Quizzes = () => {
           </FormRow>
 
           {/* 버튼 */}
-          <div className="mt-10 flex justify-end">
-            <Button onClick={() => setIsOpen(false)}>생성</Button>
+          <div className="mt-[38px] flex justify-end">
+            <Button
+              onClick={() => {
+                handleSubmit()
+              }}
+            >
+              생성
+            </Button>
           </div>
         </div>
       </Modal>

@@ -7,8 +7,6 @@ export default function DataTable({
   headerData,
   tableItem,
   isCheckBox,
-  isDeploy,
-  isDeploySwitch,
   sortKeys = [],
   sortKey,
   sortOrder,
@@ -48,8 +46,6 @@ export default function DataTable({
               isCheckBox={isCheckBox}
               isChecked={checkedItems.has(String(item.id))}
               onToggle={(checked) => toggleItem(String(item.id), checked)}
-              isDeploy={isDeploy}
-              isDeploySwitch={isDeploySwitch}
               isTime={isTime}
             />
           ))}

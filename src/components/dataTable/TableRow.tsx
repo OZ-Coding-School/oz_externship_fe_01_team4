@@ -9,8 +9,6 @@ type Props = {
   isCheckBox?: boolean
   isChecked: boolean
   onToggle: (checked: boolean) => void
-  isDeploy?: boolean
-  isDeploySwitch?: boolean
   isDeployStatus?: boolean
   isTime?: boolean
 }
@@ -43,7 +41,7 @@ export default function TableRow({
     ADMIN: 'ADMIN',
     STAFF: 'STAFF',
     STUDENT: 'STUDENT',
-  }
+  } as const
 
   const [deployStatus, setDeployStatus] = useState(isDeployStatus)
 
