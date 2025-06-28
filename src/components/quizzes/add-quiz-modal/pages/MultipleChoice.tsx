@@ -7,7 +7,7 @@ const MultipleChoice = () => {
   return (
     <div className="flex flex-col">
       <QuestionInput />
-      <QuestionOptionsEditor />
+      <QuestionOptionsEditor className="mt-[56px]" />
       <ScoreSelector />
       <SolutionInput />
     </div>
