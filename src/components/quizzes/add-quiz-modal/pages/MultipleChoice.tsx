@@ -5,11 +5,11 @@ import SolutionInput from '@components/quizzes/add-quiz-modal/components/Solutio
 
 const MultipleChoice = () => {
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col pb-[10px]">
       <QuestionInput />
       <QuestionOptionsEditor className="mt-[56px]" />
-      <ScoreSelector />
-      <SolutionInput />
+      <ScoreSelector className="mt-[30px]" />
+      <SolutionInput className="mt-[34px]" />
     </div>
   )
 }

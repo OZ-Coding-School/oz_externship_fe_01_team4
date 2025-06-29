@@ -34,7 +34,7 @@ const Sidebar = ({ items, currentTab, setCurrentTab }: SidebarProps) => {
             onClick={() => setCurrentTab(items.indexOf(item))}
             key={item.title}
           >
-            {item.title}
+            • {item.title}
           </div>
         ))}
       </section>

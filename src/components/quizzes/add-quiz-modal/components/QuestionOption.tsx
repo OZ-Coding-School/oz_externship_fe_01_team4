@@ -22,7 +22,9 @@ const QuestionOption = ({
 }: QuestionOptionProps) => {
   return (
     <div className="flex items-center">
-      <div className="ml-[14px] min-w-[27px] text-[#666666]">{index + 1}.</div>
+      <div className="ml-[14px] min-w-[27px] text-[12px] text-[#666666]">
+        {index + 1}.
+      </div>
       <input
         type="text"
         value={option.text}
