@@ -1,7 +1,7 @@
 import TableHeader from '@components/common/data-table/TableHeader'
 import TableRow from '@components/common/data-table/TableRow'
 import { useSelection } from '@hooks/data-table/useSelection'
-import type { DataTableProps } from '@customType/table'
+import type { DataTableProps } from '@custom-types/table'
 
 export default function DataTable({
   headerData,
