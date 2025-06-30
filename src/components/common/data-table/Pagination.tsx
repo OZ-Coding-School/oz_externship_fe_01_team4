@@ -1,34 +1,69 @@
 type Props = {
   currentPage: number
   totalPages: number
-  goPrev: () => void
-  goNext: () => void
+  goToPage: (page: number) => void
 }
+
+const MAX_PAGE_BUTTONS = 5
 
 export default function Pagination({
   currentPage,
   totalPages,
-  goPrev,
-  goNext,
+  goToPage,
 }: Props) {
+  const getPageNumbers = () => {
+    const half = Math.floor(MAX_PAGE_BUTTONS / 2)
+    let start = Math.max(1, currentPage - half)
+    let end = start + MAX_PAGE_BUTTONS - 1
+
+    if (end > totalPages) {
+      end = totalPages
+      start = Math.max(1, end - MAX_PAGE_BUTTONS + 1)
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i)
+  }
+
   return (
-    <div className="mt-2 flex justify-center gap-2">
+    <div className="mt-2 flex items-center justify-center text-[14px] text-[#666666]">
       <button
-        onClick={goPrev}
+        className="mr-3"
+        onClick={() => goToPage(1)}
         disabled={currentPage === 1}
-        className="rounded border px-3 py-1"
       >
-        이전
+        ≪
       </button>
-      <span className="flex items-center">
-        {currentPage} / {totalPages}
-      </span>
       <button
-        onClick={goNext}
-        disabled={currentPage === totalPages}
-        className="rounded border px-3 py-1"
+        onClick={() => goToPage(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="mr-3"
       >
-        다음
+        &lt;
+      </button>
+
+      {getPageNumbers().map((page) => (
+        <button
+          key={page}
+          onClick={() => goToPage(page)}
+          className={`mx-1 w-[12px] ${page === currentPage ? 'text-[#000000] underline' : ''}`}
+        >
+          {page}
+        </button>
+      ))}
+
+      <button
+        onClick={() => goToPage(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="ml-3"
+      >
+        &gt;
+      </button>
+      <button
+        onClick={() => goToPage(totalPages)}
+        disabled={currentPage === totalPages}
+        className="ml-3"
+      >
+        ≫
       </button>
     </div>
   )

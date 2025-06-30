@@ -14,15 +14,16 @@ export function usePagination<T>({ item, count }: UsePaginationProps<T>) {
     return item.slice(start, start + count)
   }, [item, currentPage, count])
 
-  const goPrev = () => setCurrentPage((p) => Math.max(p - 1, 1))
-  const goNext = () => setCurrentPage((p) => Math.min(p + 1, totalPages))
+  const goToPage = (page: number) => {
+    const next = Math.min(Math.max(1, page), totalPages)
+    setCurrentPage(next)
+  }
 
   return {
     currentPage,
     totalPages,
     paginatedData,
-    goPrev,
-    goNext,
+    goToPage,
     setCurrentPage,
   }
 }

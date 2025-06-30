@@ -5,13 +5,14 @@ import Button from '@components/common/Button'
 import DataTable from '@components/common/data-table/DataTable'
 import Pagination from '@components/common/data-table/Pagination'
 import { useSort } from '@hooks/data-table/useSort'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { usePagination } from '@hooks/data-table/usePagination'
 import Dropdown from '@components/common/Dropdown'
 import { useCustomToast } from '@hooks/toast/useToast'
 import { cn } from '@utils/cn'
+import axios from 'axios'
 
-// 표제목 상수화
+// 표제목 상수화;
 const TableHeaderItem = [
   { text: 'ID', dataKey: 'id' },
   { text: '제목', dataKey: 'title' },
@@ -22,45 +23,36 @@ const TableHeaderItem = [
   { text: '수정 일시', dataKey: 'updated_at' },
   { text: '', dataKey: 'deploy' },
 ]
-const item = {
-  count: 2,
-  next: null,
-  previous: null,
-  results: [
-    {
-      id: 1,
-      title: '파이썬 기초 쪽지시험',
-      subject_name: 'Python',
-      question_count: 10,
-      submission_count: 45,
-      created_at: '2025-06-01T12:00:00',
-      updated_at: '2025-06-10T15:30:00',
-    },
-    {
-      id: 2,
-      title: 'Django 기초 쪽지시험',
-      subject_name: 'Django',
-      question_count: 8,
-      submission_count: 37,
-      created_at: '2025-06-05T09:00:00',
-      updated_at: '2025-06-10T10:20:00',
-    },
-  ],
-}
 
 const SortItem = ['title'] // 정렬할 데이터 지정
 
 // 쪽지시험 관리
 const Quizzes = () => {
+  const [quizData, setQuizData] = useState<[]>([])
+
+  const API = 'http://54.180.237.77/api/v1/admin/tests/'
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(API)
+      setQuizData(response.data.results)
+    } catch (error) {
+      console.error('에러 발생:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
   const [dummySearch, setDummySearch] = useState('')
 
-  const { sortedData, sortByKey, sortKey, sortOrder } = useSort(item.results)
+  const { sortedData, sortByKey, sortKey, sortOrder } = useSort(quizData)
 
-  const { currentPage, totalPages, paginatedData, goPrev, goNext } =
-    usePagination({
-      item: sortedData, // <--- 기존 item 대신 sortedData를 넘겨줌
-      count: 10,
-    })
+  const { currentPage, totalPages, paginatedData, goToPage } = usePagination({
+    item: sortedData, // <--- 기존 item 대신 sortedData를 넘겨줌
+    count: 10,
+  })
 
   const toast = useCustomToast()
 
@@ -186,9 +178,9 @@ const Quizzes = () => {
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        goPrev={goPrev}
-        goNext={goNext}
+        goToPage={goToPage}
       />
+
       <div className="flex justify-end">
         <Button onClick={openModal}>생성</Button>
       </div>
