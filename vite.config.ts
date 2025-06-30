@@ -17,7 +17,6 @@ export default defineConfig({
       '@utils': resolve(__dirname, 'src/utils'),
       '@constants': resolve(__dirname, 'src/constants'),
       '@store': resolve(__dirname, 'src/store'),
-      '@mocks': resolve(__dirname, 'src/mocks'),
     },
   },
   plugins: [react(), tailwindcss(), svgr()],

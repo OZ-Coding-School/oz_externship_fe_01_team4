@@ -17,8 +17,7 @@
       "@custom-types/*": ["./src/types/*"],
       "@utils/*": ["./src/utils/*"],
       "@constants/*": ["./src/constants/*"],
-      "@store/*": ["./src/store/*"],
-      "@mocks/*": ["./src/mocks/*"]
+      "@store/*": ["./src/store/*"]
     },
     "types": ["node"],
 
