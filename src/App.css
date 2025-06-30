@@ -19,3 +19,7 @@
   --color-option-goldenrod: #f6a818;
   --color-option-pale-peach: #fdeece;
 }
+
+@import 'swiper/css';
+@import 'swiper/css/navigation'; 
+@import 'swiper/css/pagination';

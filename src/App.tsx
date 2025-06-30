@@ -5,22 +5,13 @@ import { Routes, Route } from 'react-router'
 import Layout from '@components/Layout'
 import Main from '@pages/Main'
 import NotFound from '@pages/NotFound'
+import DetailModal from '@components/DetailModal/DetailModal.tsx'
 
 function App() {
-  const ROUTES = [
-    { element: <Main />, path: '/' },
-    { element: <NotFound />, path: '*' },
-  ]
-
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        {ROUTES.map((route) => (
-          <Route key={route.path} {...route} />
-        ))}
-      </Route>
-    </Routes>
-  )
+
+    <DetailModal />
+  );
 }
 
 export default App

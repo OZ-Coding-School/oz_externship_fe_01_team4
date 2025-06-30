@@ -4,7 +4,6 @@ import { cn } from "@utils/cn"
 
 type ButtonVariant = keyof typeof BUTTON_VARIANTS
 
-
 type ButtonProps = {
   children: React.ReactNode;
   onClick?: () => void;
