@@ -1,4 +1,4 @@
-import { type IconProps } from '@custom-types/icon'
+import { type IconProps } from '@customType/icon'
 import { cn } from '@utils/cn'
 
 export default function Icon({
