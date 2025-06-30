@@ -5,12 +5,11 @@ import Button from '@components/common/Button'
 import DataTable from '@components/common/data-table/DataTable'
 import Pagination from '@components/common/data-table/Pagination'
 import { useSort } from '@hooks/data-table/useSort'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { usePagination } from '@hooks/data-table/usePagination'
 import Dropdown from '@components/common/Dropdown'
 import { useCustomToast } from '@hooks/toast/useToast'
 import { cn } from '@utils/cn'
-import axios from 'axios'
 
 // 표제목 상수화;
 const TableHeaderItem = [
@@ -24,27 +23,17 @@ const TableHeaderItem = [
   { text: '', dataKey: 'deploy' },
 ]
 
+// 에러 방지용 임시 데이터
+const quizData = [
+  {
+    id: 1,
+  },
+]
+
 const SortItem = ['title'] // 정렬할 데이터 지정
 
 // 쪽지시험 관리
 const Quizzes = () => {
-  const [quizData, setQuizData] = useState<[]>([])
-
-  const API = 'http://54.180.237.77/api/v1/admin/tests/'
-
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(API)
-      setQuizData(response.data.results)
-    } catch (error) {
-      console.error('에러 발생:', error)
-    }
-  }
-
-  useEffect(() => {
-    fetchData()
-  }, [])
-
   const [dummySearch, setDummySearch] = useState('')
 
   const { sortedData, sortByKey, sortKey, sortOrder } = useSort(quizData)
