@@ -1,37 +1,31 @@
-// types/createSchedule.ts
-
-// 쪽지시험 관련 타입
 export interface Quiz {
-  id: number
-  title: string
-  subject_name: string
+  test_id: number
+  test_title: string
+  thumbnail_img_url: string
+  subject_title: string
   question_count: number
-  submission_count: number
-  created_at: string
-  updated_at: string
+  total_score?: number
+  submission_status: 'submitted' | 'not_submitted'
+  score?: number
+  correct_count?: number
 }
 
 export type SchedulePayload = {
-  testId: number
-  classId: number
-  durationMinutes: number
-  startAt: string
-  endAt: string
+  test_id: number // API에는 test_id 전송
+  generation_id: number
+  duration_time: number
+  open_at: string
+  close_at: string
 }
 
 export type ScheduleFormData = {
-  testId: string
-  classId: string
-  duration: string
-  startDate: string
-  startTime: string
-  endDate: string
-  endTime: string
-}
-
-export type QuizOption = {
-  id: number
-  title: string
+  course_name: string // 폼에서는 과정 선택 유지
+  generation_id: string
+  duration_time: string
+  start_date: string
+  start_time: string
+  end_date: string
+  end_time: string
 }
 
 export type ClassOption = {
@@ -47,9 +41,9 @@ export type DropdownOption = {
 export type ScheduleCreateModalProps = {
   isOpen: boolean
   onClose: () => void
-  quizzes: QuizOption[]
-  classes: ClassOption[]
-  onSubmit: (payload: SchedulePayload) => Promise<void>
+  selectedQuiz: Quiz | null
+  courses: ClassOption[] // 과정 선택을 위해 유지
+  generations: ClassOption[]
 }
 
 export type FormValidationResult = {
@@ -57,29 +51,17 @@ export type FormValidationResult = {
   errorMessage?: string
 }
 
-// Submit 관련 타입들
-export type SubmitState = {
-  isSubmitSuccess: boolean
-  submitError: string | null
-}
-
-export type SubmitActions = {
-  setSubmitSuccess: (success: boolean) => void
-  setSubmitError: (error: string | null) => void
-  clearSubmitError: () => void
-}
-
-// useScheduleForm Hook 타입
 export type UseScheduleFormProps = {
-  onSubmit?: (payload: SchedulePayload) => Promise<void>
-  setSubmitSuccess: (success: boolean) => void
-  setSubmitError: (error: string) => void
+  onSubmit: (payload: SchedulePayload) => Promise<void>
+  selectedQuiz: Quiz | null
+  courses: ClassOption[] // 과정 선택을 위해 유지
+  generations: ClassOption[]
 }
 
 export type UseScheduleFormReturn = {
   formData: ScheduleFormData
   isSubmitting: boolean
   updateFormField: (field: keyof ScheduleFormData, value: string) => void
-  handleSubmit: () => Promise<void>
+  handleSubmit: () => Promise<{ success: boolean; error?: string }>
   resetForm: () => void
 }

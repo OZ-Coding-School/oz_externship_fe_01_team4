@@ -1,136 +1,161 @@
+// @components/create-schedule/ScheduleFormFields.tsx
 import Input from '@components/common/Input'
 import Dropdown from '@components/common/Dropdown'
-import {
-  FORM_LABELS,
-  FORM_PLACEHOLDERS,
-  INPUT_CONSTRAINTS,
-} from '@constants/create-schedule/createSchedule'
-import { mapQuizzesToOptions, mapClassesToOptions } from '@utils/scheduleUtils'
+import Label from '@components/common/Label'
+import { SCHEDULE_CONSTANTS } from '@constants/create-schedule/createSchedule'
+import { mapClassesToOptions, mapCoursesToOptions } from '@utils/scheduleUtils'
+import { cn } from '@utils/cn'
 import type {
   ScheduleFormData,
-  QuizOption,
   ClassOption,
 } from '@custom-types/createSchedule'
 
 type ScheduleFormFieldsProps = {
   formData: ScheduleFormData
   onFieldChange: (field: keyof ScheduleFormData, value: string) => void
-  quizzes: QuizOption[]
-  classes: ClassOption[]
+  courses: ClassOption[]
+  generations: ClassOption[]
 }
 
 export const ScheduleFormFields = ({
   formData,
   onFieldChange,
-  quizzes,
-  classes,
+  courses,
+  generations,
 }: ScheduleFormFieldsProps) => {
-  const quizOptions = mapQuizzesToOptions(quizzes)
-  const classOptions = mapClassesToOptions(classes)
+  const courseOptions = mapCoursesToOptions(courses)
+  const generationOptions = mapClassesToOptions(generations)
+
+  const { UI, VALIDATION } = SCHEDULE_CONSTANTS
+  const { FORM_FIELDS } = UI
 
   return (
-    <>
-      {/* 쪽지시험 선택 */}
-      <div>
-        <label htmlFor="quiz-select" className="mb-1 block text-sm font-medium">
-          {FORM_LABELS.QUIZ_SELECT} *
-        </label>
-        <Dropdown
-          id="quiz-select"
-          name="quiz"
-          value={formData.testId}
-          onChange={(value) => onFieldChange('testId', value)}
-          options={quizOptions}
-          placeholder={FORM_PLACEHOLDERS.QUIZ_SELECT}
-        />
+    <div className="flex flex-col">
+      {/* 과정 선택 (course_name) */}
+      <div className={FORM_FIELDS.ROW_CONTAINER}>
+        <Label htmlFor="course-select" labelText={UI.LABELS.FORM.COURSE_NAME} />
+        <div className={FORM_FIELDS.INPUT_WRAPPER_OFFSET}>
+          <Dropdown
+            id="course-select"
+            name="course"
+            value={formData.course_name}
+            onChange={(value) => onFieldChange('course_name', value)}
+            options={courseOptions}
+            placeholder={UI.PLACEHOLDERS.COURSE_NAME}
+          />
+        </div>
       </div>
 
-      {/* 기수 선택 */}
-      <div>
-        <label
-          htmlFor="class-select"
-          className="mb-1 block text-sm font-medium"
+      {/* 기수 선택 (generation_id) */}
+      <div className={FORM_FIELDS.ROW_CONTAINER}>
+        <Label
+          htmlFor="generation-select"
+          labelText={UI.LABELS.FORM.GENERATION_SELECT}
+        />
+        <div className={FORM_FIELDS.INPUT_WRAPPER_OFFSET}>
+          <Dropdown
+            id="generation-select"
+            name="generation"
+            value={formData.generation_id}
+            onChange={(value) => onFieldChange('generation_id', value)}
+            options={generationOptions}
+            placeholder={UI.PLACEHOLDERS.GENERATION_SELECT}
+          />
+        </div>
+      </div>
+
+      {/* 시험 시간 (분 단위) (duration_time) */}
+      <div className={FORM_FIELDS.ROW_CONTAINER}>
+        <Label
+          htmlFor="duration-time-input"
+          labelText={UI.LABELS.FORM.DURATION_TIME}
+        />
+        <div
+          className={cn(
+            'flex items-center gap-2',
+            FORM_FIELDS.INPUT_WRAPPER_OFFSET
+          )}
         >
-          {FORM_LABELS.CLASS_SELECT} *
-        </label>
-        <Dropdown
-          id="class-select"
-          name="class"
-          value={formData.classId}
-          onChange={(value) => onFieldChange('classId', value)}
-          options={classOptions}
-          placeholder={FORM_PLACEHOLDERS.CLASS_SELECT}
-        />
+          <Input
+            id="duration-time-input"
+            name="duration_time"
+            type="number"
+            min={VALIDATION.CONSTRAINTS.MIN_DURATION_TIME}
+            value={formData.duration_time}
+            onChange={(e) => onFieldChange('duration_time', e.target.value)}
+            placeholder={UI.PLACEHOLDERS.DURATION_TIME}
+          />
+          <span className="whitespace-nowrap">
+            {FORM_FIELDS.DURATION_UNIT_TEXT}
+          </span>
+        </div>
       </div>
 
-      {/* 진행 시간 */}
-      <div>
-        <label
-          htmlFor="duration-input"
-          className="mb-1 block text-sm font-medium"
+      {/* 시험 시작 일시 (open_at) */}
+      <div className={FORM_FIELDS.ROW_CONTAINER}>
+        <Label htmlFor="start-date" labelText={UI.LABELS.FORM.OPEN_AT} />
+        <div
+          className={cn(
+            'grid grid-cols-2 gap-2',
+            FORM_FIELDS.INPUT_WRAPPER_OFFSET,
+            'w-[300px]'
+          )}
         >
-          {FORM_LABELS.DURATION} *
-        </label>
-        <Input
-          id="duration-input"
-          name="duration"
-          type="number"
-          min={INPUT_CONSTRAINTS.MIN_DURATION}
-          value={formData.duration}
-          onChange={(e) => onFieldChange('duration', e.target.value)}
-          placeholder={FORM_PLACEHOLDERS.DURATION}
-        />
-      </div>
-
-      {/* 시작 일시 */}
-      <div>
-        <label className="mb-1 block text-sm font-medium">
-          {FORM_LABELS.START_DATETIME} *
-        </label>
-        <div className="grid grid-cols-2 gap-2">
           <Input
             id="start-date"
-            name="startDate"
+            name="start_date"
             type="date"
-            value={formData.startDate}
-            onChange={(e) => onFieldChange('startDate', e.target.value)}
-            aria-label={FORM_LABELS.START_DATE_ARIA}
+            value={formData.start_date}
+            onChange={(e) => onFieldChange('start_date', e.target.value)}
+            placeholder=""
+            aria-label={UI.LABELS.ARIA.START_DATE}
+            wrapClassName="w-full"
           />
           <Input
             id="start-time"
-            name="startTime"
+            name="start_time"
             type="time"
-            value={formData.startTime}
-            onChange={(e) => onFieldChange('startTime', e.target.value)}
-            aria-label={FORM_LABELS.START_TIME_ARIA}
+            value={formData.start_time}
+            onChange={(e) => onFieldChange('start_time', e.target.value)}
+            placeholder=""
+            aria-label={UI.LABELS.ARIA.START_TIME}
+            wrapClassName="w-full"
           />
         </div>
       </div>
 
-      {/* 종료 일시 */}
-      <div>
-        <label className="mb-1 block text-sm font-medium">
-          {FORM_LABELS.END_DATETIME} *
-        </label>
-        <div className="grid grid-cols-2 gap-2">
+      {/* 시험 종료 일시 (close_at) */}
+      <div className={FORM_FIELDS.ROW_CONTAINER}>
+        <Label htmlFor="end-date" labelText={UI.LABELS.FORM.CLOSE_AT} />
+        <div
+          className={cn(
+            'grid grid-cols-2 gap-2',
+            FORM_FIELDS.INPUT_WRAPPER_OFFSET,
+            'w-[300px]'
+          )}
+        >
           <Input
             id="end-date"
-            name="endDate"
+            name="end_date"
             type="date"
-            value={formData.endDate}
-            onChange={(e) => onFieldChange('endDate', e.target.value)}
-            aria-label={FORM_LABELS.END_DATE_ARIA}
+            value={formData.end_date}
+            onChange={(e) => onFieldChange('end_date', e.target.value)}
+            placeholder=""
+            aria-label={UI.LABELS.ARIA.END_DATE}
+            wrapClassName="w-full"
           />
           <Input
             id="end-time"
-            name="endTime"
+            name="end_time"
             type="time"
-            value={formData.endTime}
-            onChange={(e) => onFieldChange('endTime', e.target.value)}
-            aria-label={FORM_LABELS.END_TIME_ARIA}
+            value={formData.end_time}
+            onChange={(e) => onFieldChange('end_time', e.target.value)}
+            placeholder=""
+            aria-label={UI.LABELS.ARIA.END_TIME}
+            wrapClassName="w-full"
           />
         </div>
       </div>
-    </>
+    </div>
   )
 }

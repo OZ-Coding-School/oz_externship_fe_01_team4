@@ -1,39 +1,74 @@
-export const VALIDATION_MESSAGES = {
-  REQUIRED_FIELDS: '모든 항목을 입력해주세요.',
-  INVALID_DATE_RANGE: '시작 일시가 종료 일시보다 늦을 수 없습니다.',
-  INVALID_DURATION: '진행 시간은 1분 이상이어야 합니다.',
-  SUCCESS: '쪽지시험 배포 일정이 등록되었습니다!',
-  API_ERROR: '일정 등록에 실패했습니다. 다시 시도해주세요.',
-} as const
+export const SCHEDULE_CONSTANTS = {
+  VALIDATION: {
+    MESSAGES: {
+      REQUIRED_FIELDS: '모든 항목을 입력해주세요.',
+      INVALID_DATE_RANGE: '시작 일시가 종료 일시보다 늦을 수 없습니다.',
+      INVALID_DURATION: '진행 시간은 1분 이상이어야 합니다.',
+    },
+    CONSTRAINTS: {
+      MIN_DURATION_TIME: 1,
+      MAX_COURSE_NAME: 20,
+    },
+  },
 
-export const FORM_LABELS = {
-  MODAL_TITLE: '쪽지시험 배포',
-  QUIZ_SELECT: '쪽지시험',
-  CLASS_SELECT: '기수',
-  DURATION: '진행 시간 (분)',
-  START_DATETIME: '시작 일시',
-  END_DATETIME: '종료 일시',
-  START_DATE_ARIA: '시작 날짜',
-  START_TIME_ARIA: '시작 시간',
-  END_DATE_ARIA: '종료 날짜',
-  END_TIME_ARIA: '종료 시간',
-  CANCEL_BUTTON: '취소',
-  SUBMIT_BUTTON: '생성',
-  SUBMITTING_BUTTON: '등록 중...',
-} as const
+  API: {
+    SUCCESS_MESSAGE: '쪽지시험 배포 일정이 등록되었습니다!',
+    ERROR_MESSAGE: '일정 등록에 실패했습니다. 다시 시도해주세요.',
+  },
 
-export const FORM_PLACEHOLDERS = {
-  QUIZ_SELECT: '쪽지시험을 선택하세요',
-  CLASS_SELECT: '기수를 선택하세요',
-  DURATION: '진행 시간 (분)',
-} as const
+  UI: {
+    LABELS: {
+      MODAL_TITLE: '쪽지시험 배포',
+      QUIZ_INFO: {
+        TEST_NAME: '시험명',
+        SUBJECT_NAME: '과목명',
+      },
+      FORM: {
+        COURSE_NAME: '과정',
+        GENERATION_SELECT: '기수',
+        DURATION_TIME: '시험 시간 (분)',
+        OPEN_AT: '시험 시작 일시',
+        CLOSE_AT: '시험 종료 일시',
+      },
+      ARIA: {
+        START_DATE: '시작 날짜',
+        START_TIME: '시작 시간',
+        END_DATE: '종료 날짜',
+        END_TIME: '종료 시간',
+      },
+      BUTTON: {
+        SUBMIT: '생성',
+        SUBMITTING: '등록 중...',
+      },
+    },
 
-export const MODAL_CONFIG = {
-  ID: 'schedule-create',
-  WIDTH: 'w-[640px]',
-  PADDING_SIZE: 32,
-} as const
+    PLACEHOLDERS: {
+      COURSE_NAME: '과정을 선택하세요',
+      GENERATION_SELECT: '기수를 선택하세요',
+      DURATION_TIME: '시험 시간 (분)',
+    },
 
-export const INPUT_CONSTRAINTS = {
-  MIN_DURATION: 1,
+    MODAL: {
+      ID: 'schedule-create',
+      WIDTH: 'w-[790px]',
+      HEIGHT: 'h-[520px]',
+      PADDING_SIZE: 32,
+    },
+
+    STYLES: {
+      QUIZ_INFO: {
+        CONTAINER: 'rounded-md bg-gray-50 p-4',
+        ITEM_CONTAINER: 'mb-2 last:mb-0',
+        LABEL: 'font-medium',
+        VALUE: 'text-black',
+      },
+    },
+
+    FORM_FIELDS: {
+      ROW_CONTAINER: 'flex h-[50px] items-center border-b border-[#DDDDDD]',
+      REQUIRED_INDICATOR_COLOR: 'text-[#CC0A0A]',
+      INPUT_WRAPPER_OFFSET: 'ml-[30px]',
+      DURATION_UNIT_TEXT: '분',
+    },
+  },
 } as const

@@ -1,14 +1,14 @@
 import type { SchedulePayload, Quiz } from '@custom-types/createSchedule'
+import { SCHEDULE_CONSTANTS } from '@constants/create-schedule/createSchedule'
 
-// API 설정
-const API_BASE_URL = 'api/v1/admin/tests'
+const API_BASE_URL = 'api/v1/admin'
 
 // HTTP 요청 유틸리티
 const request = async <T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> => {
-  const url = `${API_BASE_URL}${endpoint}`
+  const url = `${API_BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`
   const config: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
@@ -23,8 +23,13 @@ const request = async <T>(
     if (!response.ok) {
       const error = await response
         .json()
-        .catch(() => ({ message: '알 수 없는 오류' }))
+        .catch(() => ({ message: SCHEDULE_CONSTANTS.API.ERROR_MESSAGE }))
       throw new Error(error.message || `HTTP ${response.status}`)
+    }
+
+    // 응답이 없을 경우 (204 No Content 등)를 처리
+    if (response.status === 204) {
+      return undefined as T // Promise<void>를 위한 처리
     }
 
     return response.json()
@@ -32,28 +37,27 @@ const request = async <T>(
     if (error instanceof Error) {
       throw error
     }
-    throw new Error('네트워크 오류가 발생했습니다')
+    throw new Error(SCHEDULE_CONSTANTS.API.ERROR_MESSAGE)
   }
 }
 
 // 쪽지시험 API
 export const quizAPI = {
-  // 목록 조회
-  getList: (): Promise<Quiz[]> => request<Quiz[]>('/'),
+  getList: (): Promise<Quiz[]> => request<Quiz[]>('/tests'),
 
-  // 배포 일정 설정 (SchedulePayload 타입 사용)
   setDeploySchedule: (payload: SchedulePayload): Promise<void> =>
-    request<void>(`/${payload.testId}/deploy-schedule`, {
+    request<void>(`/test-deployments/`, {
       method: 'POST',
       body: JSON.stringify({
-        classId: payload.classId,
-        durationMinutes: payload.durationMinutes,
-        startAt: payload.startAt,
-        endAt: payload.endAt,
+        test_id: payload.test_id,
+        generation_id: payload.generation_id,
+        duration_time: payload.duration_time,
+        open_at: payload.open_at,
+        close_at: payload.close_at,
       }),
     }),
 
-  // 배포 일정 설정 후 목록 새로고침 (편의 메서드)
+  // 배포 일정 설정 후 목록 새로고침
   async deployAndRefresh(payload: SchedulePayload): Promise<Quiz[]> {
     await this.setDeploySchedule(payload)
     return this.getList()
