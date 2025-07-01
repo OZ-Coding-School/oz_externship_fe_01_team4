@@ -12,7 +12,7 @@ import Dropdown from '@components/common/Dropdown'
 
 // 목업 데이터
 const mockSubmissions = {
-  count: 42,
+  count: 2,
   next: null,
   previous: null,
   results: [
