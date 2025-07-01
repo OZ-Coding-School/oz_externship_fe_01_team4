@@ -12,7 +12,7 @@ import Dropdown from '@components/common/Dropdown'
 
 // 목업 데이터
 const mockSubmissions = {
-  count: 2,
+  count: 42,
   next: null,
   previous: null,
   results: [
@@ -51,6 +51,35 @@ const mockSubmissions = {
   ],
 }
 
+// 드롭다운 필드 정의
+type DropdownFieldProps = {
+  label: string
+  id: string
+  value: string
+  onChange: (value: string) => void
+  options: { label: string; value: string }[]
+}
+
+const DropdownField = ({
+  label,
+  id,
+  value,
+  onChange,
+  options,
+}: DropdownFieldProps) => (
+  <div className="flex items-center justify-between gap-3 py-1">
+    <span className="text-sm whitespace-nowrap">{label}</span>
+    <Dropdown
+      id={id}
+      name={id}
+      value={value}
+      onChange={onChange}
+      options={options}
+      wrapClassName="w-full max-w-[360px]"
+    />
+  </div>
+)
+
 // 테이블 헤더
 const submissionHeaders = [
   { text: 'ID', dataKey: 'id' },
@@ -65,12 +94,16 @@ const submissionHeaders = [
   { text: '시험 종료 일시', dataKey: 'submittedAt' },
 ]
 
+// 페이지 상수 추가
+const COUNT_LIMIT = 20
+
 const Submissions = () => {
   // 모달 상태
   const [isModalOpen, setIsModalOpen] = useState(false)
   // 필터링 옵션 상태
   const [selectedCourse, setSelectedCourse] = useState('')
   const [selectedGeneration, setSelectedGeneration] = useState('')
+  const [selectedSubject, setSelectedSubject] = useState('')
 
   // 드롭다운 옵션
   const courseOptions = [
@@ -86,6 +119,11 @@ const Submissions = () => {
     { label: '7기', value: '7기' },
     { label: '8기', value: '8기' },
     { label: '9기', value: '9기' },
+  ]
+  const subjectOptions = [
+    { label: '전체 보기', value: '' },
+    { label: '웹 프로그래밍', value: '웹프로그래밍' },
+    { label: '프론트엔드', value: '프론트엔드' },
   ]
 
   // 테이블 데이터
@@ -109,11 +147,10 @@ const Submissions = () => {
   const { sortedData, sortKey, sortOrder, sortByKey } = useSort(filteredData)
 
   // 페이지네이션
-  const { currentPage, totalPages, paginatedData, goPrev, goNext } =
-    usePagination({
-      item: sortedData,
-      count: 20,
-    })
+  const { currentPage, totalPages, paginatedData, goToPage } = usePagination({
+    item: sortedData,
+    count: COUNT_LIMIT,
+  })
 
   // 필터링 기능
   const filterHandler = () => {
@@ -123,7 +160,10 @@ const Submissions = () => {
       const isGenMatch = selectedGeneration
         ? generation === selectedGeneration
         : true
-      return isCourseMatch && isGenMatch
+      const isSubjectMatch = selectedSubject
+        ? item.subject === selectedSubject
+        : true
+      return isCourseMatch && isGenMatch && isSubjectMatch
     })
     setFilteredData([...result])
     setIsModalOpen(false)
@@ -148,44 +188,39 @@ const Submissions = () => {
           modalId={'filterModal'}
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          className="gap-2"
+          className="w-fit min-w-[500px] gap-2"
           paddingSize={36}
         >
           <h3 className="text-lg font-semibold">과정별 필터링</h3>
-          <p className="mb-2 text-sm">
+          <p className="mb-5 text-sm">
             필터를 적용할 과정과 기수를 선택해주세요.
           </p>
           {/* 필터링 드롭다운 */}
-          <div className="flex items-center gap-3">
-            <span className="text-sm">과정</span>
-            <Dropdown
-              id={'course'}
-              name={'course'}
-              value={selectedCourse}
-              onChange={(value: string): void => {
-                setSelectedCourse(value)
-              }}
-              options={courseOptions}
-              wrapClassName="w-full max-w-[360px]"
-            ></Dropdown>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm">기수</span>
-            <Dropdown
-              id={'generation'}
-              name={'generation'}
-              value={selectedGeneration}
-              onChange={(value: string): void => {
-                setSelectedGeneration(value)
-              }}
-              options={generationOptions}
-              wrapClassName="w-full max-w-[360px]"
-            ></Dropdown>
-          </div>
-          <p className="py-3">
+          <DropdownField
+            label="과정"
+            id="course"
+            value={selectedCourse}
+            onChange={setSelectedCourse}
+            options={courseOptions}
+          />
+          <DropdownField
+            label="기수"
+            id="generation"
+            value={selectedGeneration}
+            onChange={setSelectedGeneration}
+            options={generationOptions}
+          />
+          <DropdownField
+            label="과목"
+            id="subject"
+            value={selectedSubject}
+            onChange={setSelectedSubject}
+            options={subjectOptions}
+          />
+          <p className="py-5">
             현재 선택된 과정은
             <span className="px-1 font-semibold text-primary-600">
-              {selectedCourse} &gt; {selectedGeneration}
+              {selectedCourse} &gt; {selectedGeneration} &gt; {selectedSubject}
             </span>
             입니다.
           </p>
@@ -208,14 +243,15 @@ const Submissions = () => {
           sortByKey={sortByKey}
           isTime={false}
         />
+        {/* 페이지네이션 */}
+        <div className="pt-8 pb-2">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            goToPage={goToPage}
+          />
+        </div>
       </div>
-      {/* 페이지네이션 */}
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        goPrev={goPrev}
-        goNext={goNext}
-      />
     </section>
   )
 }
