@@ -1,15 +1,20 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
-import type { Quiz } from '@custom-types/createSchedule'
+
+type SelectedQuizInfo = {
+  test_id: number
+  test_title: string
+  subject_title: string
+}
 
 type ScheduleState = {
   isModalOpen: boolean
-  selectedQuiz: Quiz | null
+  selectedQuiz: SelectedQuizInfo | null
 }
 
 type ScheduleActions = {
-  openModal: (quiz: Quiz) => void
-  closeModal: () => void
+  openScheduleModal: (quizInfo: SelectedQuizInfo) => void
+  closeScheduleModal: () => void
 }
 
 export type ScheduleStore = ScheduleState & ScheduleActions
@@ -22,10 +27,10 @@ export const useScheduleStore = create<ScheduleStore>()(
       selectedQuiz: null,
 
       // 액션
-      openModal: (quiz) =>
-        set({ isModalOpen: true, selectedQuiz: quiz }, false, 'openModal'),
+      openScheduleModal: (quizInfo) =>
+        set({ isModalOpen: true, selectedQuiz: quizInfo }, false, 'openModal'),
 
-      closeModal: () =>
+      closeScheduleModal: () =>
         set({ isModalOpen: false, selectedQuiz: null }, false, 'closeModal'),
     }),
     { name: 'schedule-store' }

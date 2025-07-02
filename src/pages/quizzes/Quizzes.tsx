@@ -10,6 +10,10 @@ import { usePagination } from '@hooks/data-table/usePagination'
 import Dropdown from '@components/common/Dropdown'
 import { useCustomToast } from '@hooks/toast/useToast'
 import { cn } from '@utils/cn'
+import ScheduleModal from '@components/create-schedule/ScheduleModal'
+import { useScheduleStore } from '@store/create-schedule/scheduleStore'
+import { quizAPI } from '../../api/scheduleApi'
+import type { SchedulePayload } from '@custom-types/createSchedule'
 
 // 표제목 상수화;
 const TableHeaderItem = [
@@ -23,11 +27,28 @@ const TableHeaderItem = [
   { text: '', dataKey: 'deploy' },
 ]
 
-// 에러 방지용 임시 데이터
+// mock 데이터
 const quizData = [
   {
     id: 1,
+    title: 'React & Redux 데일리 쪽지시험',
+    subject_name: 'React & Redux',
+    question_count: 10,
+    submission_count: 25,
+    created_at: '2025.02.01 11:22:28',
+    updated_at: '2025.02.28 11:22:28',
   },
+]
+
+const coursesData = [
+  { id: 1, name: '웹 개발 초급자 프론트엔드 부트캠프' },
+  { id: 2, name: 'AI 백엔드 심화과정' },
+]
+
+const generationsData = [
+  { id: 8, name: '8기' },
+  { id: 9, name: '9기' },
+  { id: 10, name: '10기' },
 ]
 
 const SortItem = ['title'] // 정렬할 데이터 지정
@@ -35,7 +56,23 @@ const SortItem = ['title'] // 정렬할 데이터 지정
 // 쪽지시험 관리
 const Quizzes = () => {
   const [dummySearch, setDummySearch] = useState('')
+  // Store 연결
+  const { isModalOpen, selectedQuiz, openScheduleModal, closeScheduleModal } =
+    useScheduleStore()
 
+  // 배포 버튼 클릭 핸들러
+  const handleDeployClick = (quizData: any) => {
+    openScheduleModal({
+      test_id: quizData.id,
+      test_title: quizData.title,
+      subject_title: quizData.subject_name,
+    })
+  }
+
+  // 스케줄 제출 핸들러
+  const handleScheduleSubmit = async (payload: SchedulePayload) => {
+    await quizAPI.setDeploySchedule(payload)
+  }
   const { sortedData, sortByKey, sortKey, sortOrder } = useSort(quizData)
 
   const { currentPage, totalPages, paginatedData, goToPage } = usePagination({
@@ -163,6 +200,7 @@ const Quizzes = () => {
         sortOrder={sortOrder} // 현재 정렬 방향 전달
         sortByKey={sortByKey} // 정렬 함수 전달
         isTime // 시간 표시 여부
+        onDeployClick={handleDeployClick} // 배포 버튼 클릭 핸들러
       />
       <Pagination
         currentPage={currentPage}
@@ -173,6 +211,17 @@ const Quizzes = () => {
       <div className="flex justify-end">
         <Button onClick={openModal}>생성</Button>
       </div>
+      {/* 스케줄 배포 모달 */}
+      <ScheduleModal
+        isOpen={isModalOpen}
+        onClose={closeScheduleModal}
+        test_id={selectedQuiz?.test_id || 0}
+        test_title={selectedQuiz?.test_title || ''}
+        subject_title={selectedQuiz?.subject_title || ''}
+        courses={coursesData}
+        generations={generationsData}
+        onSubmit={handleScheduleSubmit}
+      />
       <Modal
         modalId="example-modal"
         isOpen={isOpen}

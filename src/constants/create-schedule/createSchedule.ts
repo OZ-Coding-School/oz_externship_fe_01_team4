@@ -44,31 +44,49 @@ export const SCHEDULE_CONSTANTS = {
 
     PLACEHOLDERS: {
       COURSE_NAME: '과정을 선택하세요',
-      GENERATION_SELECT: '기수를 선택하세요',
-      DURATION_TIME: '시험 시간 (분)',
     },
 
     MODAL: {
       ID: 'schedule-create',
       WIDTH: 'w-[790px]',
-      HEIGHT: 'h-[520px]',
-      PADDING_SIZE: 32,
+      HEIGHT: 'h-[483x]',
+      PADDING_SIZE: 30,
     },
 
     STYLES: {
+      MODAL: {
+        CONTAINER: 'flex flex-col gap-4',
+        TITLE: 'text-[18px] font-semibold text-black',
+      },
       QUIZ_INFO: {
         CONTAINER: 'rounded-md bg-gray-50 p-4',
         ITEM_CONTAINER: 'mb-2 last:mb-0',
-        LABEL: 'font-medium',
-        VALUE: 'text-black',
+        LABEL: 'font-medium text-[14px] text-[#666666]',
+        VALUE: 'text-black text-[14px]',
+      },
+      FORM_ELEMENTS: {
+        FORM_ELEMENTS: {
+          BORDER_FIRST: 'border-t border-b border-[#DDDDDD]',
+          BORDER: 'border-b border-[#DDDDDD]',
+        },
       },
     },
 
     FORM_FIELDS: {
-      ROW_CONTAINER: 'flex h-[50px] items-center border-b border-[#DDDDDD]',
+      ROW_CONTAINER: 'flex h-[50px] items-center',
       REQUIRED_INDICATOR_COLOR: 'text-[#CC0A0A]',
-      INPUT_WRAPPER_OFFSET: 'ml-[30px]',
+      INPUT_WRAPPER_OFFSET: 'm-[7px]',
       DURATION_UNIT_TEXT: '분',
+
+      // Input,Label Sizes
+      SIZES: {
+        LABEL: 'w-[200px]',
+        COURSE_DROPDOWN: 'w-[340px] h-[36px]',
+        GENERATION_DROPDOWN: 'w-[100px] h-[36px]',
+        DURATION_INPUT: 'w-[80px] h-[36px]',
+        DATE_INPUT: 'w-[150px] h-[36px]',
+        TIME_INPUT: 'w-[100px] h-[36px]',
+      },
     },
   },
 } as const

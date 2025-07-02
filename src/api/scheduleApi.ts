@@ -1,17 +1,22 @@
-import type { SchedulePayload, Quiz } from '@custom-types/createSchedule'
+import type { SchedulePayload } from '@custom-types/createSchedule'
 import { SCHEDULE_CONSTANTS } from '@constants/create-schedule/createSchedule'
 
-const API_BASE_URL = 'api/v1/admin'
+// API 기본 URL - 환경변수 사용
+const API_BASE_URL = '/api/v1/admin'
 
 // HTTP 요청 유틸리티
-const request = async <T>(
+const request = async (
   endpoint: string,
   options: RequestInit = {}
-): Promise<T> => {
+): Promise<any> => {
   const url = `${API_BASE_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`
+
+  const token = localStorage.getItem('access_token')
+
   const config: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
     },
     ...options,
@@ -27,11 +32,12 @@ const request = async <T>(
       throw new Error(error.message || `HTTP ${response.status}`)
     }
 
-    // 응답이 없을 경우 (204 No Content 등)를 처리
+    // 204 No Content면 undefined 반환
     if (response.status === 204) {
-      return undefined as T // Promise<void>를 위한 처리
+      return undefined
     }
 
+    // 그 외에는 JSON 파싱해서 반환
     return response.json()
   } catch (error) {
     if (error instanceof Error) {
@@ -43,10 +49,8 @@ const request = async <T>(
 
 // 쪽지시험 API
 export const quizAPI = {
-  getList: (): Promise<Quiz[]> => request<Quiz[]>('/tests'),
-
   setDeploySchedule: (payload: SchedulePayload): Promise<void> =>
-    request<void>(`/test-deployments/`, {
+    request(`/test-deployments/`, {
       method: 'POST',
       body: JSON.stringify({
         test_id: payload.test_id,
@@ -56,10 +60,4 @@ export const quizAPI = {
         close_at: payload.close_at,
       }),
     }),
-
-  // 배포 일정 설정 후 목록 새로고침
-  async deployAndRefresh(payload: SchedulePayload): Promise<Quiz[]> {
-    await this.setDeploySchedule(payload)
-    return this.getList()
-  },
 } as const

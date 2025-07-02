@@ -1,4 +1,3 @@
-// @components/create-schedule/ScheduleFormFields.tsx
 import Input from '@components/common/Input'
 import Dropdown from '@components/common/Dropdown'
 import Label from '@components/common/Label'
@@ -27,13 +26,19 @@ export const ScheduleFormFields = ({
   const generationOptions = mapClassesToOptions(generations)
 
   const { UI, VALIDATION } = SCHEDULE_CONSTANTS
-  const { FORM_FIELDS } = UI
+  const { FORM_FIELDS, STYLES } = UI
+  const { SIZES } = FORM_FIELDS
+  const { BORDER_FIRST, BORDER } = STYLES.FORM_ELEMENTS.FORM_ELEMENTS
 
   return (
     <div className="flex flex-col">
       {/* 과정 선택 (course_name) */}
-      <div className={FORM_FIELDS.ROW_CONTAINER}>
-        <Label htmlFor="course-select" labelText={UI.LABELS.FORM.COURSE_NAME} />
+      <div className={cn(FORM_FIELDS.ROW_CONTAINER, BORDER_FIRST)}>
+        <Label
+          htmlFor="course-select"
+          labelText={UI.LABELS.FORM.COURSE_NAME}
+          className={SIZES.LABEL}
+        />
         <div className={FORM_FIELDS.INPUT_WRAPPER_OFFSET}>
           <Dropdown
             id="course-select"
@@ -42,15 +47,17 @@ export const ScheduleFormFields = ({
             onChange={(value) => onFieldChange('course_name', value)}
             options={courseOptions}
             placeholder={UI.PLACEHOLDERS.COURSE_NAME}
+            wrapClassName={SIZES.COURSE_DROPDOWN}
           />
         </div>
       </div>
 
       {/* 기수 선택 (generation_id) */}
-      <div className={FORM_FIELDS.ROW_CONTAINER}>
+      <div className={cn(FORM_FIELDS.ROW_CONTAINER, BORDER)}>
         <Label
           htmlFor="generation-select"
           labelText={UI.LABELS.FORM.GENERATION_SELECT}
+          className={SIZES.LABEL}
         />
         <div className={FORM_FIELDS.INPUT_WRAPPER_OFFSET}>
           <Dropdown
@@ -59,16 +66,17 @@ export const ScheduleFormFields = ({
             value={formData.generation_id}
             onChange={(value) => onFieldChange('generation_id', value)}
             options={generationOptions}
-            placeholder={UI.PLACEHOLDERS.GENERATION_SELECT}
+            wrapClassName={SIZES.GENERATION_DROPDOWN}
           />
         </div>
       </div>
 
-      {/* 시험 시간 (분 단위) (duration_time) */}
-      <div className={FORM_FIELDS.ROW_CONTAINER}>
+      {/* 시험 시간 (duration_time) */}
+      <div className={cn(FORM_FIELDS.ROW_CONTAINER, BORDER)}>
         <Label
           htmlFor="duration-time-input"
           labelText={UI.LABELS.FORM.DURATION_TIME}
+          className={SIZES.LABEL}
         />
         <div
           className={cn(
@@ -83,7 +91,7 @@ export const ScheduleFormFields = ({
             min={VALIDATION.CONSTRAINTS.MIN_DURATION_TIME}
             value={formData.duration_time}
             onChange={(e) => onFieldChange('duration_time', e.target.value)}
-            placeholder={UI.PLACEHOLDERS.DURATION_TIME}
+            wrapClassName={SIZES.DURATION_INPUT}
           />
           <span className="whitespace-nowrap">
             {FORM_FIELDS.DURATION_UNIT_TEXT}
@@ -92,13 +100,16 @@ export const ScheduleFormFields = ({
       </div>
 
       {/* 시험 시작 일시 (open_at) */}
-      <div className={FORM_FIELDS.ROW_CONTAINER}>
-        <Label htmlFor="start-date" labelText={UI.LABELS.FORM.OPEN_AT} />
+      <div className={cn(FORM_FIELDS.ROW_CONTAINER, BORDER)}>
+        <Label
+          htmlFor="start-date"
+          labelText={UI.LABELS.FORM.OPEN_AT}
+          className={SIZES.LABEL}
+        />
         <div
           className={cn(
-            'grid grid-cols-2 gap-2',
-            FORM_FIELDS.INPUT_WRAPPER_OFFSET,
-            'w-[300px]'
+            'flex items-center gap-2',
+            FORM_FIELDS.INPUT_WRAPPER_OFFSET
           )}
         >
           <Input
@@ -107,9 +118,8 @@ export const ScheduleFormFields = ({
             type="date"
             value={formData.start_date}
             onChange={(e) => onFieldChange('start_date', e.target.value)}
-            placeholder=""
             aria-label={UI.LABELS.ARIA.START_DATE}
-            wrapClassName="w-full"
+            wrapClassName={SIZES.DATE_INPUT}
           />
           <Input
             id="start-time"
@@ -117,21 +127,23 @@ export const ScheduleFormFields = ({
             type="time"
             value={formData.start_time}
             onChange={(e) => onFieldChange('start_time', e.target.value)}
-            placeholder=""
             aria-label={UI.LABELS.ARIA.START_TIME}
-            wrapClassName="w-full"
+            wrapClassName={SIZES.TIME_INPUT}
           />
         </div>
       </div>
 
       {/* 시험 종료 일시 (close_at) */}
-      <div className={FORM_FIELDS.ROW_CONTAINER}>
-        <Label htmlFor="end-date" labelText={UI.LABELS.FORM.CLOSE_AT} />
+      <div className={cn(FORM_FIELDS.ROW_CONTAINER, BORDER)}>
+        <Label
+          htmlFor="end-date"
+          labelText={UI.LABELS.FORM.CLOSE_AT}
+          className={SIZES.LABEL}
+        />
         <div
           className={cn(
-            'grid grid-cols-2 gap-2',
-            FORM_FIELDS.INPUT_WRAPPER_OFFSET,
-            'w-[300px]'
+            'flex items-center gap-2',
+            FORM_FIELDS.INPUT_WRAPPER_OFFSET
           )}
         >
           <Input
@@ -140,9 +152,8 @@ export const ScheduleFormFields = ({
             type="date"
             value={formData.end_date}
             onChange={(e) => onFieldChange('end_date', e.target.value)}
-            placeholder=""
             aria-label={UI.LABELS.ARIA.END_DATE}
-            wrapClassName="w-full"
+            wrapClassName={SIZES.DATE_INPUT}
           />
           <Input
             id="end-time"
@@ -150,9 +161,8 @@ export const ScheduleFormFields = ({
             type="time"
             value={formData.end_time}
             onChange={(e) => onFieldChange('end_time', e.target.value)}
-            placeholder=""
             aria-label={UI.LABELS.ARIA.END_TIME}
-            wrapClassName="w-full"
+            wrapClassName={SIZES.TIME_INPUT}
           />
         </div>
       </div>
