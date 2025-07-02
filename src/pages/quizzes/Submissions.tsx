@@ -2,13 +2,20 @@ import Button from '@components/common/Button'
 import DataTable from '@components/common/data-table/DataTable'
 import SearchIcon from '@assets/icons/search.svg?react'
 import Icon from '@components/common/Icon'
-import type { Submission } from '@custom-types/submission'
+import {
+  mapSubmission,
+  type Submission,
+  type SubmissionResponse,
+} from '@custom-types/submission'
 import Modal from '@components/common/Modal'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Pagination from '@components/common/data-table/Pagination'
 import { useSort } from '@hooks/data-table/useSort'
 import { usePagination } from '@hooks/data-table/usePagination'
-import Dropdown from '@components/common/Dropdown'
+import DropdownField from '@components/common/DropdownField'
+
+// 페이지 상수 추가
+const COUNT_LIMIT = 20
 
 // 목업 데이터
 const mockSubmissions = {
@@ -51,35 +58,6 @@ const mockSubmissions = {
   ],
 }
 
-// 드롭다운 필드 정의
-type DropdownFieldProps = {
-  label: string
-  id: string
-  value: string
-  onChange: (value: string) => void
-  options: { label: string; value: string }[]
-}
-
-const DropdownField = ({
-  label,
-  id,
-  value,
-  onChange,
-  options,
-}: DropdownFieldProps) => (
-  <div className="flex items-center justify-between gap-3 py-1">
-    <span className="text-sm whitespace-nowrap">{label}</span>
-    <Dropdown
-      id={id}
-      name={id}
-      value={value}
-      onChange={onChange}
-      options={options}
-      wrapClassName="w-full max-w-[360px]"
-    />
-  </div>
-)
-
 // 테이블 헤더
 const submissionHeaders = [
   { text: 'ID', dataKey: 'id' },
@@ -93,9 +71,6 @@ const submissionHeaders = [
   { text: '시험 참가 일시', dataKey: 'startedAt' },
   { text: '시험 종료 일시', dataKey: 'submittedAt' },
 ]
-
-// 페이지 상수 추가
-const COUNT_LIMIT = 20
 
 const Submissions = () => {
   // 모달 상태
@@ -125,20 +100,12 @@ const Submissions = () => {
     { label: '웹 프로그래밍', value: '웹프로그래밍' },
     { label: '프론트엔드', value: '프론트엔드' },
   ]
-
   // 테이블 데이터
-  const tableData: Submission[] = mockSubmissions.results.map((s) => ({
-    id: s.submission_id,
-    name: s.student.name,
-    nickname: s.student.nickname,
-    generation: s.student.generation,
-    title: s.test.title,
-    subject: s.test.subject_title,
-    score: s.score,
-    cheatingCount: s.cheating_count,
-    startedAt: s.started_at,
-    submittedAt: s.submitted_at,
-  }))
+  const rawData: SubmissionResponse = mockSubmissions
+  const tableData: Submission[] = useMemo(
+    () => rawData.results.map(mapSubmission),
+    [rawData.results]
+  )
 
   // 필터링 데이터 저장
   const [filteredData, setFilteredData] = useState<Submission[]>(tableData)
@@ -165,7 +132,7 @@ const Submissions = () => {
         : true
       return isCourseMatch && isGenMatch && isSubjectMatch
     })
-    setFilteredData([...result])
+    setFilteredData(result)
     setIsModalOpen(false)
   }
 
@@ -218,9 +185,9 @@ const Submissions = () => {
             options={subjectOptions}
           />
           <p className="py-5">
-            현재 선택된 과정은
+            현재 선택된 필터 항목은
             <span className="px-1 font-semibold text-primary-600">
-              {selectedCourse} &gt; {selectedGeneration} &gt; {selectedSubject}
+              {selectedCourse} {selectedGeneration} &gt; {selectedSubject}
             </span>
             입니다.
           </p>
