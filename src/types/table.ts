@@ -23,6 +23,7 @@ export type DataTableProps = {
   sortOrder: SortOrder
   sortByKey: (key: string) => void
   isTime: boolean
+  onDeployClick?: (data: TableRowData) => void
 }
 
 export type Pagination = {

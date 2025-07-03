@@ -12,6 +12,7 @@ export default function DataTable({
   sortOrder,
   sortByKey,
   isTime,
+  onDeployClick,
 }: DataTableProps) {
   const { checkedItems, toggleItem, toggleAll, isAllChecked } = useSelection()
 
@@ -47,6 +48,7 @@ export default function DataTable({
               isChecked={checkedItems.has(String(item.id))}
               onToggle={(checked) => toggleItem(String(item.id), checked)}
               isTime={isTime}
+              onDeployClick={onDeployClick}
             />
           ))}
 

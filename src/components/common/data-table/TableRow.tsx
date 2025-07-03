@@ -11,6 +11,7 @@ type Props = {
   onToggle: (checked: boolean) => void
   isDeployStatus?: boolean
   isTime?: boolean
+  onDeployClick?: (data: TableRowData) => void
 }
 
 export default function TableRow({
@@ -21,6 +22,7 @@ export default function TableRow({
   onToggle,
   isDeployStatus,
   isTime,
+  onDeployClick,
 }: Props) {
   const DATA_KEYS = {
     DEPLOY: 'deploy',
@@ -46,7 +48,7 @@ export default function TableRow({
   const [deployStatus, setDeployStatus] = useState(isDeployStatus)
 
   const handleDeploy = () => {
-    setDeployStatus(true)
+    onDeployClick?.(data)
   }
   const toggleSwitch = () => {
     setDeployStatus((prev) => !prev)
