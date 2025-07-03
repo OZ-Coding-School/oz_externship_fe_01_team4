@@ -1,11 +1,16 @@
 import Dropdown from '@components/common/Dropdown'
 
+type Option = {
+  label: string
+  value: string
+}
+
 type DropdownFieldProps = {
   label: string
   id: string
   value: string
   onChange: (value: string) => void
-  options: { label: string; value: string }[]
+  options: Option[]
 }
 
 const DropdownField = ({
