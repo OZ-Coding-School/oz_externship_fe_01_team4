@@ -1,14 +1,10 @@
 // src/components/DetailModal.tsx
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
 
 import SlideItem from './SlideItem'; // SlideItem 컴포넌트 임포트
 
-// Import Swiper styles
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
 
 
 function DetailModal() {
