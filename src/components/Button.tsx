@@ -1,4 +1,5 @@
-import { BUTTON_VARIANTS, DEFAULT_BUTTON_VARIANT } from "@constants/button";
+
+import { BUTTON_VARIANTS, DEFAULT_BUTTON_VARIANT } from "@constants/button/button";
 import { cn } from "@utils/cn"
 
 
