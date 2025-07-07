@@ -217,7 +217,7 @@ const SlideItem: React.FC<SlideItemProps> = ({ index }) => {
         setBlankInputs(prev => ({ ...prev, [id]: value }));
       };
 
-      const handleOptionClick = (id: string, text: string) => {
+      const handleOptionClick = (text: string) => {
           // 현재 활성화된(클릭된) 빈칸이 있다면 그곳에 값을 넣거나
           // 아니면 첫 번째 빈칸, 또는 아직 채워지지 않은 빈칸에 값을 넣습니다.
           // 여기서는 예시로 'A' 빈칸을 타겟으로 설정합니다. 실제로는 더 복잡한 로직이 필요할 수 있습니다.
@@ -276,7 +276,7 @@ const SlideItem: React.FC<SlideItemProps> = ({ index }) => {
                             value={blankInputs.B}
                             onChange={(e) => handleBlankInputChange('B', e.target.value)}
                         />
-                         {blankInputs.B && (
+                          {blankInputs.B && (
                             <span className="absolute right-2 top-1/2 -translate-y-1/2">
                                 {isBlankCorrect('B') ? (
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" viewBox="0 0 20 20" fill="currentColor">
@@ -296,7 +296,7 @@ const SlideItem: React.FC<SlideItemProps> = ({ index }) => {
                       <div
                           key={option.id}
                           className="flex items-center border border-gray-300 rounded-md p-3 text-gray-700 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
-                          onClick={() => handleOptionClick(option.id, option.text)}
+                          onClick={() => handleOptionClick(option.text)}
                       >
                           <span className="font-semibold w-6">({option.id})</span>
                           <span>{option.text}</span>
@@ -313,20 +313,20 @@ const SlideItem: React.FC<SlideItemProps> = ({ index }) => {
   }
 
   // 정답 표시 로직 (모든 문제에 적용)
-  const isOverallCorrect = () => {
-    if (index === 0 || index === 1) {
-      return selectedChoice !== null && selectedChoice === correctAnswer;
-    } else if (index === 2) {
-      return JSON.stringify(selectedOrder) === JSON.stringify(correctAnswer);
-    } else if (index === 3) {
-      return inputValue.trim().toLowerCase() === String(correctAnswer).toLowerCase();
-    } else if (index === 4) {
-      return Object.keys(correctAnswer as Record<string, string>).every(blankId =>
-        blankInputs[blankId].trim().toLowerCase() === (correctAnswer as Record<string, string>)[blankId].toLowerCase()
-      );
-    }
-    return false;
-  };
+  // const isOverallCorrect = () => {
+  //   if (index === 0 || index === 1) {
+  //     return selectedChoice !== null && selectedChoice === correctAnswer;
+  //   } else if (index === 2) {
+  //     return JSON.stringify(selectedOrder) === JSON.stringify(correctAnswer);
+  //   } else if (index === 3) {
+  //     return inputValue.trim().toLowerCase() === String(correctAnswer).toLowerCase();
+  //   } else if (index === 4) {
+  //     return Object.keys(correctAnswer as Record<string, string>).every(blankId =>
+  //       blankInputs[blankId].trim().toLowerCase() === (correctAnswer as Record<string, string>)[blankId].toLowerCase()
+  //     );
+  //   }
+  //   return false;
+  // };
 
   const showOverallAnswer = (index === 0 || index === 1 || index === 2 || index === 3 || index === 4);
 
