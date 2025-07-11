@@ -13,6 +13,7 @@ import Submissions from '@pages/quizzes/Submissions'
 import { Toaster } from 'react-hot-toast'
 import { Route, Routes } from 'react-router'
 import './App.css'
+import EnrollmentContainer from '@components/EnrollmentContainer'
 
 function App() {
   const ROUTES = [
@@ -32,19 +33,7 @@ function App() {
   ]
 
   return (
-    <>
-      <Routes>
-        <Route element={<Login />} path="/" />
-
-        <Route element={<Layout />}>
-          {ROUTES.map((route) => (
-            <Route key={route.path} {...route} />
-          ))}
-        </Route>
-      </Routes>
-
-      <Toaster position="top-right" />
-    </>
+    <EnrollmentContainer/>
   )
 }
 
